@@ -19,22 +19,22 @@ const ctx = () => SillyTavern.getContext();
 
 const GENRES = [
     { id: 'kpop', label: 'K-POP', hint: 'K-pop (Korean idol / dance pop)' },
-    { id: 'ballad', label: '발라드', hint: 'Korean ballad' },
-    { id: 'kindie', label: '인디', hint: 'Korean indie / band music' },
-    { id: 'rnb', label: 'R&B·소울', hint: 'R&B / soul' },
-    { id: 'hiphop', label: '힙합', hint: 'hip-hop / rap' },
-    { id: 'pop', label: '팝', hint: 'Western pop' },
-    { id: 'rock', label: '록·밴드', hint: 'rock / alternative' },
+    { id: 'ballad', label: 'Баллады', hint: 'Korean ballad' },
+    { id: 'kindie', label: 'Инди', hint: 'Korean indie / band music' },
+    { id: 'rnb', label: 'R&B / соул', hint: 'R&B / soul' },
+    { id: 'hiphop', label: 'Хип-хоп', hint: 'hip-hop / rap' },
+    { id: 'pop', label: 'Поп', hint: 'Western pop' },
+    { id: 'rock', label: 'Рок', hint: 'rock / alternative' },
     { id: 'jpop', label: 'J-POP', hint: 'J-pop' },
-    { id: 'citypop', label: '시티팝', hint: 'city pop' },
-    { id: 'jazz', label: '재즈', hint: 'jazz' },
-    { id: 'classical', label: '클래식', hint: 'classical music' },
-    { id: 'lofi', label: '로파이·칠', hint: 'lo-fi / chill beats' },
-    { id: 'electronic', label: '일렉트로닉', hint: 'electronic / synth / house' },
-    { id: 'acoustic', label: '어쿠스틱·포크', hint: 'acoustic / folk / singer-songwriter' },
-    { id: 'ost', label: '영화·드라마 OST', hint: 'film / TV drama soundtrack' },
-    { id: 'gameost', label: '게임·애니 OST', hint: 'video game / anime soundtrack' },
-    { id: 'ambient', label: '앰비언트·뉴에이지', hint: 'ambient / new age / solo piano' },
+    { id: 'citypop', label: 'Сити-поп', hint: 'city pop' },
+    { id: 'jazz', label: 'Джаз', hint: 'jazz' },
+    { id: 'classical', label: 'Классика', hint: 'classical music' },
+    { id: 'lofi', label: 'Лоу-фай / чилл', hint: 'lo-fi / chill beats' },
+    { id: 'electronic', label: 'Электроника', hint: 'electronic / synth / house' },
+    { id: 'acoustic', label: 'Акустика / фолк', hint: 'acoustic / folk / singer-songwriter' },
+    { id: 'ost', label: 'Саундтреки к фильмам и сериалам', hint: 'film / TV drama soundtrack' },
+    { id: 'gameost', label: 'Саундтреки к играм и аниме', hint: 'video game / anime soundtrack' },
+    { id: 'ambient', label: 'Эмбиент / нью-эйдж', hint: 'ambient / new age / solo piano' },
 ];
 
 const DEFAULTS = Object.freeze({
@@ -66,8 +66,8 @@ const CACHE_MAX = 300;
 const MISS_TTL = 3 * 24 * 60 * 60 * 1000;
 const PLAYED_MAX = 100;
 const REPEAT_MODES = ['off', 'one', 'star'];
-const CARD_STYLES = { pill: '알약', player: '미니 플레이어', line: '한 줄 글자', vinyl: 'LP판', bar: '진행 막대' };
-const REPEAT_LABELS = { off: '반복 끔 (곡이 끝나면 다음 추천곡)', one: '한 곡 반복', star: '★ 곡들 반복' };
+const CARD_STYLES = { pill: 'Капсула', player: 'Мини-плеер', line: 'Одна строка', vinyl: 'Виниловая пластинка', bar: 'Шкала прогресса' };
+const REPEAT_LABELS = { off: 'Без повтора (после окончания — следующая композиция)', one: 'Повтор одной композиции', star: 'Повтор избранного ★' };
 // 생각(추론)하는 모델은 생각에 쓴 토큰도 이 한도에 들어가므로 넉넉하게 둔다.
 const RESPONSE_TOKENS = 4000;
 
@@ -227,7 +227,7 @@ function buildPrompt(scene, allowed) {
         genreLines,
         '',
         'Answer with one JSON object and nothing else:',
-        '{"mood":"<the scene mood in Korean, under 30 characters>","tracks":[{"artist":"...","title":"...","genre":"<one allowed genre id>","reason":"<one short Korean sentence on why it fits>"}]}',
+        '{"mood":"<the scene mood in Russian, under 30 characters>","tracks":[{"artist":"...","title":"...","genre":"<one allowed genre id>","reason":"<one short Russian sentence on why it fits>"}]}',
     ].filter((line) => line !== '').join('\n');
     const user = `<scene>\n${scene}\n</scene>\n\nRecommend the background music for this scene as JSON.`;
     return { system, user };
@@ -238,7 +238,7 @@ async function askModel(system, user) {
     const c = ctx();
     if (s.profileId) {
         const service = c.ConnectionManagerRequestService;
-        if (!service) throw new Error('연결 프로필 기능을 쓸 수 없습니다. 분석 연결을 "현재 연결"로 바꿔 주세요.');
+        if (!service) throw new Error('Профили подключений недоступны. Для анализа выберите «Текущее подключение».');
         const result = await service.sendRequest(
             s.profileId,
             [{ role: 'system', content: system }, { role: 'user', content: user }],
@@ -271,9 +271,9 @@ function parseAnswer(raw, allowed) {
     const text = String(raw ?? '').trim();
     const data = readJson(text);
     if (!data) {
-        console.warn(LOG, '읽지 못한 모델 답:', text);
-        if (!text) throw new Error('모델이 빈 답을 돌려주었습니다. 생각(추론)에 토큰을 다 썼을 수 있으니 분석에 쓸 연결을 다른 모델로 바꿔 보세요.');
-        throw new Error(`모델이 추천 목록 대신 다른 답을 돌려주었습니다: "${text.slice(0, 90)}${text.length > 90 ? '…' : ''}"`);
+        console.warn(LOG, 'Не удалось прочитать ответ модели:', text);
+        if (!text) throw new Error('Модель вернула пустой ответ. Возможно, все токены ушли на размышление. Попробуйте другую модель для анализа.');
+        throw new Error(`Вместо списка рекомендаций модель вернула другой ответ: "${text.slice(0, 90)}${text.length > 90 ? '…' : ''}"`);
     }
     const played = new Set(recentNames(40).map(nk));
     const seen = new Set();
@@ -290,7 +290,7 @@ function parseAnswer(raw, allowed) {
         seen.add(key);
         tracks.push({ artist, title, genre: genre.label, reason: String(t?.reason ?? '').trim() });
     }
-    if (offGenre) console.log(LOG, `선택한 장르 밖의 추천 ${offGenre}곡을 뺐습니다.`);
+    if (offGenre) console.log(LOG, `Исключено рекомендаций вне выбранных жанров: ${offGenre}.`);
     return { mood: String(data?.mood ?? '').trim(), tracks };
 }
 
@@ -345,11 +345,11 @@ function rateVideo(item, index, track) {
 function apiErrorMessage(status, body) {
     const reason = body?.error?.errors?.[0]?.reason || '';
     const message = body?.error?.message || '';
-    if (/quota|dailyLimit|rateLimit/i.test(reason)) return '오늘 쓸 수 있는 YouTube 검색 할당량을 다 썼습니다. 내일 다시 쓸 수 있습니다.';
-    if (/keyInvalid/i.test(reason) || /API key not valid/i.test(message)) return 'YouTube API 키가 올바르지 않습니다.';
-    if (/accessNotConfigured|SERVICE_DISABLED/i.test(`${reason} ${message}`)) return '이 키의 프로젝트에서 YouTube Data API v3를 사용 설정해 주세요.';
-    if (/forbidden|referer|ipRefererBlocked|API_KEY_/i.test(`${reason} ${message}`)) return 'YouTube API 키의 사용 제한 때문에 요청이 막혔습니다. 키의 제한 설정을 확인해 주세요.';
-    return `YouTube 검색에 실패했습니다 (${status}${message ? `: ${message}` : ''}).`;
+    if (/quota|dailyLimit|rateLimit/i.test(reason)) return 'Суточная квота запросов к YouTube исчерпана. Повторите попытку завтра.';
+    if (/keyInvalid/i.test(reason) || /API key not valid/i.test(message)) return 'Неверный API-ключ YouTube.';
+    if (/accessNotConfigured|SERVICE_DISABLED/i.test(`${reason} ${message}`)) return 'Включите YouTube Data API v3 в проекте, которому принадлежит этот ключ.';
+    if (/forbidden|referer|ipRefererBlocked|API_KEY_/i.test(`${reason} ${message}`)) return 'Запрос заблокирован ограничениями API-ключа YouTube. Проверьте настройки ключа.';
+    return `Ошибка поиска на YouTube (${status}${message ? `: ${message}` : ''}).`;
 }
 
 const cacheKey = (track) => `${nk(track.artist)}|${nk(track.title)}|${S().officialOnly ? 1 : 0}${S().instrumentalOnly ? 'i' : ''}`;
@@ -423,7 +423,7 @@ async function findVideo(track) {
     try {
         response = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`);
     } catch {
-        throw new Error('YouTube에 연결하지 못했습니다. 인터넷 연결을 확인해 주세요.');
+        throw new Error('Не удалось подключиться к YouTube. Проверьте интернет-соединение.');
     }
     const body = await response.json().catch(() => null);
     if (!response.ok) throw new Error(apiErrorMessage(response.status, body));
@@ -458,14 +458,14 @@ function loadYouTubeApi() {
         if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
             const tag = document.createElement('script');
             tag.src = 'https://www.youtube.com/iframe_api';
-            tag.onerror = () => { st.ytPromise = null; reject(new Error('YouTube 플레이어를 불러오지 못했습니다.')); };
+            tag.onerror = () => { st.ytPromise = null; reject(new Error('Не удалось загрузить плеер YouTube.')); };
             document.head.appendChild(tag);
         }
         // 다른 확장이 먼저 불러 둔 경우에는 준비 신호가 다시 오지 않으므로 직접 확인한다.
         const started = Date.now();
         const timer = setInterval(() => {
             if (window.YT?.Player) { clearInterval(timer); resolve(window.YT); }
-            else if (Date.now() - started > 20000) { clearInterval(timer); st.ytPromise = null; reject(new Error('YouTube 플레이어를 불러오지 못했습니다.')); }
+            else if (Date.now() - started > 20000) { clearInterval(timer); st.ytPromise = null; reject(new Error('Не удалось загрузить плеер YouTube.')); }
         }, 250);
     });
     return st.ytPromise;
@@ -533,7 +533,7 @@ function onPlayerError(event) {
     console.warn(LOG, 'player error', event?.data, st.current?.video?.id);
     if (st.current?.direct) {
         st.current = null;
-        setStatus('이 영상은 틀 수 없습니다. 주소가 맞는지, 다른 사이트에서의 재생이 막힌 영상은 아닌지 확인해 주세요.', true);
+        setStatus('Не удаётся воспроизвести видео. Проверьте ссылку и разрешено ли встраивание на других сайтах.', true);
         return;
     }
     const code = Number(event?.data) || 0;
@@ -560,7 +560,7 @@ function onPlayerError(event) {
         }
     }
     if (++st.errStreak > 4) {
-        setStatus('재생할 수 없는 영상이 이어져 멈췄습니다. ✨로 다시 추천받아 보세요.', true);
+        setStatus('Несколько видео подряд оказались недоступны. Нажмите ✨ для новых рекомендаций.', true);
         return;
     }
     if (failed?.picked) {
@@ -570,7 +570,7 @@ function onPlayerError(event) {
     // 막힌 영상이면 같은 곡의 다른 영상을 한 번 더 찾아 본다(설정이 켜져 있을 때).
     if (failed && refused && S().altVideo) st.queue.unshift(trackFields(failed));
     if (st.queue.length) playNext();
-    else setStatus(`이 기기에서는 "${failed?.title || '이 곡'}"을(를) 틀 수 없습니다 (YouTube 오류 ${code}).`, true);
+    else setStatus(`На этом устройстве не удаётся воспроизвести «${failed?.title || 'эту композицию'}» (ошибка YouTube ${code}).`, true);
 }
 
 async function onTrackEnded() {
@@ -621,7 +621,7 @@ async function startVideo(track, video) {
         st.needTap = true;
         // 아이폰·아이패드는 바깥 단추로는 재생을 시작할 수 없으므로 바로 영상을 보여 준다.
         if (IS_IOS) askTapVideo();
-        else if (!st.panelOpen) toast('info', '브라우저가 자동 재생을 막았습니다. 음표를 한 번 눌러 주세요.');
+        else if (!st.panelOpen) toast('info', 'Браузер заблокировал автовоспроизведение. Нажмите значок ноты.');
         render();
     }, IS_IOS ? 1500 : 4000);
     setStatus('');
@@ -665,8 +665,8 @@ async function playNext() {
         return true;
     }
     setStatus(S().officialOnly
-        ? '추천받은 곡의 공식 음원을 찾지 못했습니다. ✨로 다시 추천받아 보세요.'
-        : '추천받은 곡을 YouTube에서 찾지 못했습니다. ✨로 다시 추천받아 보세요.', true);
+        ? 'Не удалось найти официальные записи рекомендованных композиций. Нажмите ✨ для новых рекомендаций.'
+        : 'Не удалось найти рекомендованные композиции на YouTube. Нажмите ✨ для новых рекомендаций.', true);
     return false;
 }
 
@@ -677,23 +677,23 @@ async function recommend({ manual = false, switchNow = manual, upTo = null } = {
     if (!s.enabled || st.busy) return;
     const allowed = allowedGenres();
     if (!allowed.length) {
-        setStatus('설정에서 장르를 하나 이상 체크해 주세요.', true);
+        setStatus('Выберите в настройках хотя бы один жанр.', true);
         return;
     }
     const scene = collectScene(upTo);
     if (!scene) {
-        setStatus('아직 읽을 채팅 내용이 없습니다.', true);
+        setStatus('В чате пока нет сообщений для анализа.', true);
         return;
     }
     const chatId = ctx().getCurrentChatId?.();
     st.busy = true;
-    setStatus('장면을 읽고 곡을 고르는 중…');
+    setStatus('Анализ сцены и подбор музыки…');
     try {
         const { system, user } = buildPrompt(scene, allowed);
         const raw = await askModel(system, user);
         if (chatId !== ctx().getCurrentChatId?.()) return;
         const { mood, tracks } = parseAnswer(raw, allowed);
-        if (!tracks.length) throw new Error('체크한 장르 안에서 새로 추천받은 곡이 없습니다. 다시 시도해 주세요.');
+        if (!tracks.length) throw new Error('Не удалось подобрать новые композиции в выбранных жанрах. Попробуйте ещё раз.');
         st.mood = mood;
         st.queue = tracks;
         st.tab = 'queue';
@@ -701,7 +701,7 @@ async function recommend({ manual = false, switchNow = manual, upTo = null } = {
         const keep = Number.isInteger(upTo) && s.cardOnPick;
         if (!s.apiKey) {
             if (keep) attachCard(upTo, tracks[0]);
-            setStatus('YouTube API 키를 넣으면 바로 재생됩니다. 지금은 추천곡을 누르면 YouTube 검색이 열립니다.', true);
+            setStatus('Для воспроизведения укажите API-ключ YouTube. Пока нажатие на композицию открывает поиск на YouTube.', true);
             return;
         }
         if (switchNow || !st.current || !isPlaying()) {
@@ -710,7 +710,7 @@ async function recommend({ manual = false, switchNow = manual, upTo = null } = {
         }
     } catch (e) {
         console.error(LOG, e);
-        setStatus(e?.message || '추천을 받지 못했습니다.', true);
+        setStatus(e?.message || 'Не удалось получить рекомендации.', true);
     } finally {
         st.busy = false;
         render();
@@ -756,11 +756,11 @@ function parseVideoId(text) {
 async function playDirect(text) {
     const id = parseVideoId(text);
     if (!id) {
-        setStatus('YouTube 영상 주소를 알아보지 못했습니다.', true);
+        setStatus('Не удалось распознать ссылку на видео YouTube.', true);
         return false;
     }
     const known = S().played.find((p) => p.direct && p.vid === id);
-    const track = known ? trackFields(known) : { artist: 'YouTube', title: '불러오는 중…', genre: '직접 넣기', reason: '', direct: true, vid: id };
+    const track = known ? trackFields(known) : { artist: 'YouTube', title: 'Загрузка…', genre: 'По ссылке', reason: '', direct: true, vid: id };
     await startVideo(track, { id, title: '', channel: '', kind: '' });
     return true;
 }
@@ -773,7 +773,7 @@ function nameDirectTrack() {
     if (!data.title) return;
     cur.named = true;
     const entry = S().played.find((p) => p.direct && p.vid === cur.vid);
-    if (entry && entry.title !== '불러오는 중…') {
+    if (entry && entry.title !== 'Загрузка…') {
         cur.title = entry.title;
         cur.artist = entry.artist;
         return;
@@ -803,7 +803,7 @@ async function playTrack(track) {
     if (!video) {
         const vid = knownVideoId(track);
         if (vid) st.failed = { title: track.title, id: vid, code: 0 };
-        setStatus(`"${track.title}"의 ${S().officialOnly ? '공식 음원' : '영상'}을 YouTube에서 찾지 못했습니다.`, true);
+        setStatus(`Не удалось найти для «${track.title}» ${S().officialOnly ? 'официальную аудиозапись' : 'видео'} на YouTube.`, true);
         return;
     }
     st.queue = st.queue.filter((q) => nk(trackName(q)) !== nk(trackName(track)));
@@ -826,7 +826,7 @@ async function retryPicked(failed, refused, code) {
         await startVideo(trackFields(failed), video);
         return;
     }
-    setStatus(`이 기기에서는 "${failed.title}"을(를) 틀 수 없습니다 (YouTube 오류 ${code}).`, true);
+    setStatus(`На этом устройстве не удаётся воспроизвести «${failed.title}» (ошибка YouTube ${code}).`, true);
 }
 
 function stopAll() {
@@ -953,8 +953,8 @@ function attachCard(messageId, track) {
 async function attachToMessage(track) {
     const c = ctx();
     const last = (c.chat?.length || 0) - 1;
-    if (last < 0) return toast('info', '열려 있는 채팅이 없습니다.');
-    const question = `"${track.title}" 카드를 붙일 메시지 번호를 적어 주세요 (0 ~ ${last}).\n그 메시지에 카드가 이미 있으면 이 곡으로 바뀝니다.`;
+    if (last < 0) return toast('info', 'Нет открытого чата.');
+    const question = `Укажите номер сообщения для карточки «${track.title}» (от 0 до ${last}).\nЕсли в сообщении уже есть карточка, она будет заменена.`;
     let answer;
     // 팝업 내용은 HTML로 그려지므로 곡 이름을 그대로 넣지 않는다.
     if (c.callGenericPopup && c.POPUP_TYPE) answer = await c.callGenericPopup(esc(question).replace(/\n/g, '<br>'), c.POPUP_TYPE.INPUT, String(last));
@@ -962,9 +962,9 @@ async function attachToMessage(track) {
     if (answer === null || answer === undefined || answer === false || String(answer).trim() === '') return;
     const text = String(answer).trim().replace(/^#/, '');
     const id = Number(text);
-    if (!/^\d+$/.test(text) || id > last) return toast('warning', `메시지 번호는 0부터 ${last}까지의 숫자로 적어 주세요.`);
+    if (!/^\d+$/.test(text) || id > last) return toast('warning', `Номер сообщения должен быть числом от 0 до ${last}.`);
     attachCard(id, track);
-    toast('success', `#${id} 메시지에 "${track.title}" 카드를 붙였습니다.`);
+    toast('success', `Карточка «${track.title}» добавлена к сообщению №${id}.`);
 }
 
 // 카드를 꾹 누르거나 우클릭하면 작은 메뉴(YouTube에서 열기·곡카드 삭제)를 띄운다. 메시지를 꾹 눌러 메뉴를 띄우는 확장이 함께 반응하지 않게 여기서 막는다.
@@ -1039,8 +1039,8 @@ function openCardMenu(card) {
     menu.id = 'cbgm_card_menu';
     menu.className = 'cbgm-card-menu';
     menu.innerHTML = `
-        <a class="cbgm-card-menu-item" href="${esc(url)}" target="_blank" rel="noopener"><i class="fa-brands fa-youtube"></i><span>YouTube에서 열기</span></a>
-        <div class="cbgm-card-menu-item" data-act="delete"><i class="fa-solid fa-trash-can"></i><span>곡카드 삭제</span></div>`;
+        <a class="cbgm-card-menu-item" href="${esc(url)}" target="_blank" rel="noopener"><i class="fa-brands fa-youtube"></i><span>Открыть на YouTube</span></a>
+        <div class="cbgm-card-menu-item" data-act="delete"><i class="fa-solid fa-trash-can"></i><span>Удалить карточку</span></div>`;
     document.body.appendChild(menu);
 
     // 카드 바로 아래 가운데에 두고, 자리가 없으면 위로 올린다. 모바일 실리태번 때문에 left/top을 픽셀로 준다.
@@ -1164,7 +1164,7 @@ function renderCards() {
             if (track.vid) card.dataset.vid = track.vid;
             if (track.direct) card.dataset.direct = '1';
             // 본문 안의 <i>·<b>는 테마가 기울임과 색을 입히므로 span만 쓴다.
-            card.title = '누르면 재생·일시정지, 꾹 누르면(PC는 우클릭) 메뉴';
+            card.title = 'Нажатие — воспроизведение/пауза; удержание (ПК: правая кнопка) — меню';
             bindCardHold(card);
             // 모양(알약·미니 플레이어·한 줄·LP판·진행 막대)은 같은 뼈대를 두고 CSS로만 바꾼다.
             card.innerHTML = `
@@ -1370,8 +1370,8 @@ function renderIcon() {
     icon.classList.toggle('cbgm-busy', st.busy);
     icon.classList.toggle('cbgm-need-tap', st.needTap);
     icon.title = st.current
-        ? `${st.current.title} – ${st.current.artist}\n누르면 재생·일시정지, 꾹 누르면 플레이어`
-        : 'Chat BGM\n누르면 지금 장면으로 추천, 꾹 누르면 플레이어';
+        ? `${st.current.title} – ${st.current.artist}\nНажатие — воспроизведение/пауза; удержание — плеер`
+        : 'Chat BGM\nНажатие — подбор музыки к сцене; удержание — плеер';
 }
 
 // ── 플레이어 화면 ────────────────────────────────────────────────────────
@@ -1393,24 +1393,24 @@ function buildPanel() {
         <div class="cbgm-head">
             <i class="fa-solid fa-music"></i>
             <span class="cbgm-head-title">Chat BGM</span>
-            <div class="cbgm-icon" data-act="close" title="닫기 (음악은 계속 나옵니다)"><i class="fa-solid fa-xmark"></i></div>
+            <div class="cbgm-icon" data-act="close" title="Закрыть (музыка продолжит играть)"><i class="fa-solid fa-xmark"></i></div>
         </div>
         <div class="cbgm-video"><div id="cbgm_player"></div></div>
         <div class="cbgm-now"></div>
         <div class="cbgm-status"></div>
         <div class="cbgm-ctrl">
-            <div class="cbgm-icon" data-act="toggle" title="재생·일시정지"><i class="fa-solid fa-play"></i></div>
-            <div class="cbgm-icon" data-act="next" title="다음 곡"><i class="fa-solid fa-forward-step"></i></div>
-            <div class="cbgm-icon" data-act="stop" title="끄기"><i class="fa-solid fa-stop"></i></div>
-            <div class="cbgm-icon" data-act="repeat" title="한 곡 반복"><i class="fa-solid fa-repeat"></i></div>
-            <div class="cbgm-icon" data-act="recommend" title="지금 장면으로 새로 추천"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+            <div class="cbgm-icon" data-act="toggle" title="Воспроизведение / пауза"><i class="fa-solid fa-play"></i></div>
+            <div class="cbgm-icon" data-act="next" title="Следующая композиция"><i class="fa-solid fa-forward-step"></i></div>
+            <div class="cbgm-icon" data-act="stop" title="Остановить"><i class="fa-solid fa-stop"></i></div>
+            <div class="cbgm-icon" data-act="repeat" title="Повтор одной композиции"><i class="fa-solid fa-repeat"></i></div>
+            <div class="cbgm-icon" data-act="recommend" title="Подобрать музыку к текущей сцене"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
             <i class="fa-solid fa-volume-low cbgm-vol-icon"></i>
-            <input type="range" class="cbgm-vol" min="0" max="100" step="1" title="음량">
+            <input type="range" class="cbgm-vol" min="0" max="100" step="1" title="Громкость">
         </div>
         <div class="cbgm-tabs">
-            <div class="cbgm-tab" data-act="tab" data-tab="queue">추천곡</div>
-            <div class="cbgm-tab" data-act="tab" data-tab="direct">직접 넣기</div>
-            <div class="cbgm-tab" data-act="tab" data-tab="history">재생 기록</div>
+            <div class="cbgm-tab" data-act="tab" data-tab="queue">Рекомендации</div>
+            <div class="cbgm-tab" data-act="tab" data-tab="direct">По ссылке</div>
+            <div class="cbgm-tab" data-act="tab" data-tab="history">История воспроизведения</div>
         </div>
         <div class="cbgm-list"></div>`;
     document.body.appendChild(panel);
@@ -1452,7 +1452,7 @@ async function onPanelAction(act, target) {
         save();
         const box = document.querySelector('#cbgm_settings [data-key="repeat"]');
         if (box) box.value = s.repeat;
-        if (s.repeat === 'star' && !s.played.some((p) => p.star)) toast('info', '별표 단 곡이 아직 없습니다. 재생 기록에서 ☆를 눌러 주세요.');
+        if (s.repeat === 'star' && !s.played.some((p) => p.star)) toast('info', 'В избранном пока нет композиций. Нажмите ☆ в истории воспроизведения.');
         render();
         return;
     }
@@ -1502,12 +1502,12 @@ async function onPanelAction(act, target) {
     if (act === 'findQueue') {
         if (st.busy) return;
         st.busy = true;
-        setStatus('추천곡을 YouTube에서 찾는 중…');
+        setStatus('Поиск рекомендованных композиций на YouTube…');
         try {
             for (const track of [...st.queue]) {
                 if (!knownVideoId(track) && !(await findVideo(track))) st.queue = st.queue.filter((q) => q !== track);
             }
-            setStatus(st.queue.length ? '준비됐습니다. "추천곡 모두 YouTube에서 열기"를 한 번 더 눌러 주세요.' : '추천곡의 공식 음원을 찾지 못했습니다.', !st.queue.length);
+            setStatus(st.queue.length ? 'Готово. Нажмите «Открыть все рекомендации на YouTube» ещё раз.' : 'Не найдены официальные записи рекомендованных композиций.', !st.queue.length);
         } catch (e) {
             setStatus(e.message, true);
         } finally {
@@ -1538,7 +1538,7 @@ function closePanel() {
 }
 
 function togglePanel() {
-    if (!S().enabled) return toast('info', '확장 설정에서 Chat BGM의 "사용"을 켜 주세요.');
+    if (!S().enabled) return toast('info', 'В настройках Chat BGM включите «Включить расширение».');
     if (st.panelOpen) closePanel();
     else openPanel();
 }
@@ -1596,14 +1596,14 @@ function formatTime(t) {
 
 function listRow(track, index, act, side) {
     const star = act === 'replay'
-        ? `<span class="cbgm-star ${track.star ? 'cbgm-star-on' : ''}" data-act="star" data-index="${index}" title="별표를 달면 기록을 지워도 남습니다"><i class="${track.star ? 'fa-solid' : 'fa-regular'} fa-star"></i></span>`
+        ? `<span class="cbgm-star ${track.star ? 'cbgm-star-on' : ''}" data-act="star" data-index="${index}" title="Избранное сохраняется при очистке истории"><i class="${track.star ? 'fa-solid' : 'fa-regular'} fa-star"></i></span>`
         : '';
     return `
         <div class="cbgm-row-item" data-act="${act}" data-index="${index}" title="${esc(track.reason || '')}">
             ${star}
             <span class="cbgm-row-name"><b>${esc(track.title)}</b> <span>${esc(track.artist)}</span></span>
             <span class="cbgm-row-side">${esc(side)}</span>
-            ${act === 'replay' ? `<span class="cbgm-row-go" data-act="attach" data-index="${index}" title="이 곡을 메시지에 카드로 붙이기"><i class="fa-solid fa-arrow-right"></i></span>` : ''}
+            ${act === 'replay' ? `<span class="cbgm-row-go" data-act="attach" data-index="${index}" title="Добавить карточку композиции к сообщению"><i class="fa-solid fa-arrow-right"></i></span>` : ''}
         </div>`;
 }
 
@@ -1624,7 +1624,7 @@ function render() {
     const now = panel.querySelector('.cbgm-now');
     if (st.current) {
         const t = st.current;
-        const badge = t.video.kind === 'audio' ? '공식 음원' : t.video.kind === 'video' ? '공식 채널' : '비공식';
+        const badge = t.video.kind === 'audio' ? 'Официальное аудио' : t.video.kind === 'video' ? 'Официальный канал' : 'Неофициальное';
         now.innerHTML = `
             <div class="cbgm-title">${esc(t.title)}</div>
             <div class="cbgm-artist">${esc(t.artist)}</div>
@@ -1634,11 +1634,11 @@ function render() {
             </div>
             ${t.reason ? `<div class="cbgm-reason">${esc(t.reason)}</div>` : ''}`;
     } else {
-        now.innerHTML = '<div class="cbgm-hint"><i class="fa-solid fa-wand-magic-sparkles"></i> 를 누르면 지금 장면에 어울리는 곡을 골라 틀어 줍니다.</div>';
+        now.innerHTML = '<div class="cbgm-hint"><i class="fa-solid fa-wand-magic-sparkles"></i> — подбор и воспроизведение музыки по атмосфере сцены.</div>';
     }
 
     const status = panel.querySelector('.cbgm-status');
-    const blocked = st.tapVideo ? '이 기기에서는 영상 화면을 직접 눌러야 재생이 시작됩니다. 위 영상을 한 번 눌러 주세요.' : '브라우저가 자동 재생을 막았습니다. ▶ 를 눌러 주세요.';
+    const blocked = st.tapVideo ? 'На этом устройстве для начала воспроизведения нужно нажать непосредственно на видео выше.' : 'Браузер заблокировал автовоспроизведение. Нажмите ▶.';
     const text = st.status || (st.needTap ? blocked : '');
     status.textContent = text;
     // 틀지 못한 곡은 YouTube에서 바로 열 수 있게 링크를 붙인다.
@@ -1648,7 +1648,7 @@ function render() {
         link.href = `https://www.youtube.com/watch?v=${st.failed.id}`;
         link.target = '_blank';
         link.rel = 'noopener';
-        link.textContent = 'YouTube에서 열기';
+        link.textContent = 'Открыть на YouTube';
         status.append(' ', link);
     }
     status.classList.toggle('cbgm-error', !!text && (st.statusError || !st.status));
@@ -1661,26 +1661,26 @@ function render() {
         if (!list.querySelector('.cbgm-direct')) {
             list.innerHTML = `
                 <div class="cbgm-direct">
-                    <input type="text" class="text_pole cbgm-direct-url" placeholder="YouTube 주소 붙여넣기">
-                    <div class="cbgm-icon" data-act="direct" title="이 영상 틀기"><i class="fa-solid fa-play"></i></div>
+                    <input type="text" class="text_pole cbgm-direct-url" placeholder="Вставьте ссылку YouTube">
+                    <div class="cbgm-icon" data-act="direct" title="Воспроизвести видео"><i class="fa-solid fa-play"></i></div>
                 </div>
-                <div class="cbgm-list-empty">주소의 영상을 그대로 틉니다. 검색 할당량을 쓰지 않고, 튼 곡은 재생 기록에 남습니다.</div>`;
+                <div class="cbgm-list-empty">Видео по ссылке воспроизводится без поисковых запросов к API и сохраняется в истории.</div>`;
         }
     } else if (st.tab === 'history') {
         const played = historyList();
         list.innerHTML = played.length
             ? `${played.map((t, i) => listRow(t, i, 'replay', formatTime(t.t))).join('')}
-               ${youtubeFoot(played.filter((t) => t.star), '★ 곡들 YouTube에서 열기')}
-               <div class="cbgm-list-foot" data-act="clearHistory">재생 기록 지우기 (★제외)</div>`
-            : '<div class="cbgm-list-empty">아직 재생한 곡이 없습니다.</div>';
+               ${youtubeFoot(played.filter((t) => t.star), 'Открыть избранное ★ на YouTube')}
+               <div class="cbgm-list-foot" data-act="clearHistory">Очистить историю (кроме ★)</div>`
+            : '<div class="cbgm-list-empty">История воспроизведения пуста.</div>';
     } else {
         // 추천곡은 틀 차례가 돼야 영상을 찾으므로, 아직 못 찾은 곡이 있으면 먼저 찾게 한다.
         const ready = st.queue.every((t) => knownVideoId(t));
         list.innerHTML = st.queue.length
             ? `${st.mood ? `<div class="cbgm-list-mood"><i class="fa-solid fa-feather"></i> ${esc(st.mood)}</div>` : ''}
                ${st.queue.map((t, i) => listRow(t, i, 'pick', t.genre)).join('')}
-               ${ready ? youtubeFoot(st.current ? [st.current, ...st.queue] : st.queue, '추천곡 모두 YouTube에서 열기') : (S().apiKey ? '<div class="cbgm-list-foot" data-act="findQueue">추천곡 모두 YouTube에서 열기</div>' : '')}`
-            : '<div class="cbgm-list-empty">대기 중인 추천곡이 없습니다.</div>';
+               ${ready ? youtubeFoot(st.current ? [st.current, ...st.queue] : st.queue, 'Открыть все рекомендации на YouTube') : (S().apiKey ? '<div class="cbgm-list-foot" data-act="findQueue">Открыть все рекомендации на YouTube</div>' : '')}`
+            : '<div class="cbgm-list-empty">Нет ожидающих рекомендаций.</div>';
     }
     if (panel.offsetHeight !== before) placePanel();
 }
@@ -1698,7 +1698,7 @@ function addMenuItem() {
 }
 
 // 메시지마다 음표 단추를 단다. 메시지를 꾹 눌러 뜨는 메뉴는 메시지 단추를 그대로 옮겨 보여 주므로 거기에도 나타난다.
-const MES_BUTTON = '<div class="mes_button cbgm-mes-btn fa-solid fa-music interactable" title="이 대화로 음악 추천" tabindex="0"></div>';
+const MES_BUTTON = '<div class="mes_button cbgm-mes-btn fa-solid fa-music interactable" title="Подобрать музыку к этому сообщению" tabindex="0"></div>';
 
 function addMessageButton() {
     const targets = [
@@ -1709,8 +1709,8 @@ function addMessageButton() {
         if (box && !box.querySelector('.cbgm-mes-btn')) box.insertAdjacentHTML('afterbegin', MES_BUTTON);
     }
     jQuery(document).on('click', '.cbgm-mes-btn', function () {
-        if (!S().enabled) return toast('info', '확장 설정에서 Chat BGM의 "사용"을 켜 주세요.');
-        if (st.busy) return toast('info', '지금 곡을 고르는 중입니다.');
+        if (!S().enabled) return toast('info', 'В настройках Chat BGM включите «Включить расширение».');
+        if (st.busy) return toast('info', 'Подбор музыки уже выполняется.');
         const id = Number(this.closest('.mes')?.getAttribute('mesid'));
         recommend({ manual: true, upTo: Number.isInteger(id) ? id : null });
     });
@@ -1728,7 +1728,7 @@ function addMessageButton() {
 function fillProfiles(select) {
     const s = S();
     const profiles = ctx().extensionSettings?.connectionManager?.profiles || [];
-    select.innerHTML = '<option value="">현재 연결 (지금 쓰는 모델)</option>'
+    select.innerHTML = '<option value="">Текущее подключение (активная модель)</option>'
         + profiles.map((p) => `<option value="${esc(p.id)}">${esc(p.name || p.id)}</option>`).join('');
     select.value = profiles.some((p) => p.id === s.profileId) ? s.profileId : '';
 }
@@ -1759,76 +1759,76 @@ function addSettingsDrawer() {
                 <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
             </div>
             <div class="inline-drawer-content">
-                <p>최근 대화를 읽고 장면에 어울리는 곡을 골라 YouTube 공식 음원으로 틀어 줍니다.
-                빠른 답장 줄의 <i class="fa-solid fa-music"></i> 를 누르면 재생·일시정지, 꾹 누르면(PC는 우클릭) 플레이어가 열립니다.</p>
+                <p>Анализирует последние сообщения и подбирает музыку к атмосфере сцены, воспроизводя официальные записи с YouTube.
+                Нажмите <i class="fa-solid fa-music"></i> в панели быстрых ответов для воспроизведения или паузы. Удерживайте значок (на ПК — правая кнопка мыши), чтобы открыть плеер.</p>
 
-                <label class="checkbox_label"><input type="checkbox" data-key="enabled"><span>사용</span></label>
+                <label class="checkbox_label"><input type="checkbox" data-key="enabled"><span>Включить расширение</span></label>
                 <div class="cbgm-row">
-                    <div class="menu_button menu_button_icon" id="cbgm_open_btn"><i class="fa-solid fa-music"></i><span>플레이어 열기</span></div>
-                    <div class="menu_button menu_button_icon" id="cbgm_now_btn"><i class="fa-solid fa-wand-magic-sparkles"></i><span>지금 추천받기</span></div>
+                    <div class="menu_button menu_button_icon" id="cbgm_open_btn"><i class="fa-solid fa-music"></i><span>Открыть плеер</span></div>
+                    <div class="menu_button menu_button_icon" id="cbgm_now_btn"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Подобрать музыку сейчас</span></div>
                 </div>
 
-                <h4>아이콘 위치</h4>
+                <h4>Положение значка</h4>
                 <div class="cbgm-row cbgm-nums">
-                    <label>빠른 답장 세트 <input type="number" class="text_pole cbgm-num" data-key="iconSet" min="0" max="99"></label>
-                    <label>세트 안에서의 순서 <input type="number" class="text_pole cbgm-num" data-key="iconOrder" min="0" max="99"></label>
+                    <label>Набор быстрых ответов <input type="number" class="text_pole cbgm-num" data-key="iconSet" min="0" max="99"></label>
+                    <label>Позиция внутри набора <input type="number" class="text_pole cbgm-num" data-key="iconOrder" min="0" max="99"></label>
                 </div>
-                <small>세트는 0이면 마지막 세트, 1이면 첫 세트, 2면 두 번째 세트입니다.
-                순서는 0이면 그 세트의 맨 뒤, 1이면 맨 앞, 2면 앞에서 두 번째입니다.</small>
+                <small>Набор: 0 — последний, 1 — первый, 2 — второй.
+                Позиция: 0 — в конце набора, 1 — в начале, 2 — второй значок.</small>
 
-                <h4>장르</h4>
-                <small>체크한 장르 안에서만 추천합니다.</small>
+                <h4>Жанры</h4>
+                <small>Рекомендации только в отмеченных жанрах.</small>
                 <div class="cbgm-genres">
                     ${GENRES.map((g) => `<label class="checkbox_label"><input type="checkbox" data-genre="${g.id}"><span>${esc(g.label)}</span></label>`).join('')}
                 </div>
                 <div class="cbgm-row">
-                    <div class="menu_button" id="cbgm_genre_all">모두 선택</div>
-                    <div class="menu_button" id="cbgm_genre_none">모두 해제</div>
+                    <div class="menu_button" id="cbgm_genre_all">Выбрать всё</div>
+                    <div class="menu_button" id="cbgm_genre_none">Снять выделение</div>
                 </div>
-                <label for="cbgm_custom">직접 적는 장르 (쉼표로 구분)</label>
-                <input type="text" class="text_pole" id="cbgm_custom" data-key="customGenres" placeholder="예: 보사노바, 트로트, 포스트록">
-                <label class="checkbox_label"><input type="checkbox" data-key="instrumentalOnly"><span>가사 없는 연주곡만</span></label>
+                <label for="cbgm_custom">Другие жанры (через запятую)</label>
+                <input type="text" class="text_pole" id="cbgm_custom" data-key="customGenres" placeholder="Например: босса-нова, трот, построк">
+                <label class="checkbox_label"><input type="checkbox" data-key="instrumentalOnly"><span>Только инструментальная музыка (без слов)</span></label>
 
                 <h4>YouTube</h4>
-                <label for="cbgm_key">YouTube Data API v3 키</label>
+                <label for="cbgm_key">Ключ YouTube Data API v3</label>
                 <input type="password" class="text_pole" id="cbgm_key" data-key="apiKey" autocomplete="off" placeholder="AIza…">
-                <small>Google Cloud 콘솔에서 YouTube Data API v3를 사용 설정하고 API 키를 만들어 넣습니다.
-                검색 한 번에 할당량 100을 쓰며 기본 한도는 하루 10,000(약 100곡)입니다. 한 번 찾은 곡은 기억해 두고 다시 검색하지 않습니다.</small>
-                <label class="checkbox_label"><input type="checkbox" data-key="officialOnly"><span>공식 음원·공식 채널 영상만 재생 (못 찾으면 다음 후보로)</span></label>
-                <label class="checkbox_label"><input type="checkbox" data-key="altVideo"><span>재생이 막힌 영상은 같은 곡의 다른 영상 찾기</span></label>
-                <small>같은 영상도 기기나 브라우저에 따라 재생이 막히기도 합니다. 켜 두면 그럴 때 다른 공식 영상을 찾아 틀고(곡마다 검색 할당량 100 추가), 끄면 그 곡은 그 기기에서 건너뜁니다.</small>
+                <small>Включите YouTube Data API v3 в консоли Google Cloud и вставьте созданный API-ключ.
+                Один поиск расходует 100 единиц квоты. Стандартный лимит — 10 000 единиц в день (около 100 композиций). Найденные записи кешируются.</small>
+                <label class="checkbox_label"><input type="checkbox" data-key="officialOnly"><span>Воспроизводить только официальное аудио и видео с официальных каналов (иначе — следующая композиция)</span></label>
+                <label class="checkbox_label"><input type="checkbox" data-key="altVideo"><span>Искать другое видео той же композиции, если воспроизведение заблокировано</span></label>
+                <small>Одно и то же видео может быть недоступно на разных устройствах или в браузерах. Если включено, расширение ищет другую официальную версию (ещё 100 единиц квоты на композицию); иначе пропускает её на этом устройстве.</small>
 
-                <h4>추천</h4>
-                <label for="cbgm_profile">분석에 쓸 연결</label>
+                <h4>Рекомендации</h4>
+                <label for="cbgm_profile">Подключение для анализа</label>
                 <select class="text_pole" id="cbgm_profile"></select>
-                <small>추천받을 때마다 모델을 한 번 부릅니다. 값싼 모델의 연결 프로필을 골라 두면 좋습니다.</small>
-                <label class="checkbox_label"><input type="checkbox" data-key="auto"><span>음악이 나오는 동안 캐릭터 답장 <input type="number" class="text_pole cbgm-num" data-key="autoEvery" min="1" max="99">개마다 장면을 다시 읽기</span></label>
-                <label class="checkbox_label"><input type="checkbox" data-key="switchNow"><span>새 곡이 정해지면 듣던 곡을 끊고 바로 바꾸기 (끄면 곡이 끝난 뒤 바꿈)</span></label>
-                <label for="cbgm_repeat">곡이 끝나면</label>
+                <small>При каждом подборе вызывается модель. Для экономии можно выбрать профиль с более дешёвой моделью.</small>
+                <label class="checkbox_label"><input type="checkbox" data-key="auto"><span>Пока играет музыка, анализировать сцену каждые <input type="number" class="text_pole cbgm-num" data-key="autoEvery" min="1" max="99">ответов персонажа</span></label>
+                <label class="checkbox_label"><input type="checkbox" data-key="switchNow"><span>Сразу переключаться на новую композицию (если выключено — после завершения текущей)</span></label>
+                <label for="cbgm_repeat">Когда композиция закончится</label>
                 <select class="text_pole" id="cbgm_repeat" data-key="repeat">
-                    <option value="off">다음 추천곡으로</option>
-                    <option value="one">한 곡 반복</option>
-                    <option value="star">★ 곡들 반복</option>
+                    <option value="off">Перейти к следующей рекомендации</option>
+                    <option value="one">Повтор одной композиции</option>
+                    <option value="star">Повтор избранного ★</option>
                 </select>
                 <div class="cbgm-row cbgm-nums">
-                    <label>읽을 메시지 수 <input type="number" class="text_pole cbgm-num" data-key="contextMessages" min="2" max="40"></label>
-                    <label>한 번에 받을 후보 <input type="number" class="text_pole cbgm-num" data-key="candidates" min="1" max="8"></label>
+                    <label>Число сообщений для анализа <input type="number" class="text_pole cbgm-num" data-key="contextMessages" min="2" max="40"></label>
+                    <label>Композиций за один подбор <input type="number" class="text_pole cbgm-num" data-key="candidates" min="1" max="8"></label>
                 </div>
 
-                <h4>곡 카드</h4>
-                <label class="checkbox_label"><input type="checkbox" data-key="card"><span>캐릭터 답장 <input type="number" class="text_pole cbgm-num" data-key="cardEvery" min="1" max="99">개마다 곡 카드 넣기</span></label>
-                <small>답장을 쓰는 모델이 장면에 맞는 곡을 하나 골라 답장 끝에 적고, 그 메시지 맨 위에 곡 카드를 그립니다.
-                추천용 호출이 따로 들지 않는 대신 카드를 넣을 차례의 답장 프롬프트에 지시문과 장르 목록이 추가됩니다. 숫자를 1로 두면 답장마다 넣습니다. 체크한 장르에서 벗어난 곡은 카드로 그리지 않습니다.</small>
-                <label for="cbgm_card_style">카드 모양</label>
+                <h4>Музыкальные карточки</h4>
+                <label class="checkbox_label"><input type="checkbox" data-key="card"><span>Каждые <input type="number" class="text_pole cbgm-num" data-key="cardEvery" min="1" max="99">ответов персонажа добавлять музыкальную карточку</span></label>
+                <small>Модель, создающая ответ, выбирает композицию к сцене и добавляет тег в конец ответа. Карточка отображается в начале сообщения.
+                Отдельный запрос к модели не нужен, но в промпт соответствующего ответа добавляются инструкция и список жанров. Значение 1 — карточка в каждом ответе. Композиции вне выбранных жанров не отображаются.</small>
+                <label for="cbgm_card_style">Вид карточки</label>
                 <select class="text_pole" id="cbgm_card_style" data-key="cardStyle">
                     ${Object.entries(CARD_STYLES).map(([id, label]) => `<option value="${id}">${label}</option>`).join('')}
                 </select>
-                <label class="checkbox_label"><input type="checkbox" data-key="cardAutoPlay"><span>카드가 붙은 답장이 오면 그 곡을 자동으로 틀기 (끄면 카드를 눌렀을 때만)</span></label>
-                <label class="checkbox_label"><input type="checkbox" data-key="cardOnPick"><span>메시지의 <i class="fa-solid fa-music"></i> 단추로 추천받은 곡을 그 메시지에 카드로 남기기</span></label>
-                <small>카드를 꾹 누르면(PC는 우클릭) <b>YouTube에서 열기</b>와 <b>곡카드 삭제</b>가 뜹니다.</small>
+                <label class="checkbox_label"><input type="checkbox" data-key="cardAutoPlay"><span>Автоматически включать музыку при получении ответа с карточкой (иначе — только по нажатию)</span></label>
+                <label class="checkbox_label"><input type="checkbox" data-key="cardOnPick"><span>Добавлять карточку с рекомендацией к сообщению при нажатии <i class="fa-solid fa-music"></i></span></label>
+                <small>Удерживайте карточку (на ПК — правая кнопка мыши), чтобы выбрать <b>Открыть на YouTube</b> или <b>Удалить карточку</b>.</small>
 
                 <div class="cbgm-row">
-                    <div class="menu_button" id="cbgm_clear_btn">재생 기록·검색 기억 지우기</div>
+                    <div class="menu_button" id="cbgm_clear_btn">Очистить историю и кеш поиска</div>
                 </div>
             </div>
         </div>`;
@@ -1867,7 +1867,7 @@ function addSettingsDrawer() {
 
     box.querySelector('#cbgm_open_btn').addEventListener('click', () => { if (S().enabled) openPanel(); });
     box.querySelector('#cbgm_now_btn').addEventListener('click', () => {
-        if (!S().enabled) return toast('info', '먼저 "사용"을 켜 주세요.');
+        if (!S().enabled) return toast('info', 'Сначала включите расширение.');
         openPanel();
         recommend({ manual: true });
     });
@@ -1878,7 +1878,7 @@ function addSettingsDrawer() {
         try { localStorage.removeItem(DEVICE_KEY); } catch { /* 저장소를 못 쓰는 브라우저 */ }
         save();
         render();
-        toast('success', '재생 기록과 검색 기억을 지웠습니다. 별표를 단 곡은 남겨 두었습니다.');
+        toast('success', 'История воспроизведения и кеш поиска очищены. Избранные композиции сохранены.');
     });
 }
 
